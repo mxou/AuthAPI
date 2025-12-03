@@ -55,3 +55,23 @@ app.post("/login", async (req, res) => {
 
   res.json({ token });
 });
+
+//==========================
+// Middleware
+//==========================
+
+function auth(req, res, next) {
+  const header = req.headers.authorization;
+  if (!header) return res.status(401).json({ error: "Token manquant" });
+
+  // Pour récuperer uniquement le token
+  const token = header.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(token, KEY);
+    req.user = decoded;
+    next();
+  } catch {
+    res.status(401).json({ error: "Token invalide" });
+  }
+}
